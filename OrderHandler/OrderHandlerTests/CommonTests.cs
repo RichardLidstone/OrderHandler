@@ -10,18 +10,26 @@ namespace OrderHandlerTests
     public class CommonTests : TestBase
     {
 
-
+        /// <summary>
+        /// Tests Ids are correctly allocated sequentially to Types.
+        /// Has multiple asserts which is generally considered bad form - I've still 
+        /// done it because this is all about testing the encapsulation of Ids to types 
+        /// as different objects are instantiated. I think that's OK?
+        /// </summary>
         [TestMethod]
         public void ObjectsSetIdsWhenInitialised()
         {
             var order = new Order();
-            Assert.AreEqual(1, order.id);
+            Assert.AreEqual(1, order.id, "first Order");
 
             var dp = new DeliveryProcessor(null);
-            Assert.AreEqual(1, dp.id);
+            Assert.AreEqual(1, dp.id, "first DeliveryProcessor");
+
+            var pp = new PaymentProcessor(null);
+            Assert.AreEqual(1, pp.id, "first PaymentProcessor");
 
             order = new Order();
-            Assert.AreEqual(2, order.id);
+            Assert.AreEqual(2, order.id, "second Order");
         }
 
 
