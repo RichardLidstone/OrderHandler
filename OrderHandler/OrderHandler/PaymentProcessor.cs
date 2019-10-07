@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -13,6 +14,8 @@ namespace OrderHandler
         private int delay;
         private readonly IReceivableSourceBlock<Order> source;
         private readonly Action<Order> onCompletion;
+        private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+
 
 
         public PaymentProcessor(IReceivableSourceBlock<Order> source, TextWriter writer, Func<PaymentProcessor, Action<Order>> completionFactory = null, int delay = 2000)
@@ -32,7 +35,7 @@ namespace OrderHandler
 
         protected async Task consumeAsync()
         {
-            while (await source.OutputAvailableAsync())
+            while (await source.OutputAvailableAsync())                                                 
             {
                 Order order;
                 while (source.TryReceive(out order))
@@ -46,17 +49,26 @@ namespace OrderHandler
 
         public async Task processAsync(Order order)
         {
-            if (order.paymentProcessed)                                                                             // if the order payment has already been processed ...
-                throw new ApplicationException("Order payment already processed");                                      // throw an exception - this should never happen
+            await semaphore.WaitAsync();
 
-            writer.WriteLine($"Payment Processor#{id}: {timestamp}: Order #{order.id}. Processing Payment.");       // build the start message
+            try
+            {
+                if (order.paymentProcessed)                                                                             // if the order payment has already been processed ...
+                    throw new ApplicationException("Order payment already processed");                                      // throw an exception - this should never happen
 
-            order.paymentProcessed = await paymentIO(order);                                                        // process the order payment - in a real system this is probably going to be have an async IO component ao we use await
+                writer.WriteLine($"Payment Processor#{id}: {timestamp}: Order #{order.id}. Processing Payment.");       // build the start message
 
-            string msg = order.paymentProcessed ? "Payment Processed" : "Payment Failed";                           // determine the message detail on whether the payment was successful or not
-            writer.WriteLine($"Payment Processor#{id}: {timestamp}: Order #{order.id}. {msg}.");                    // build the completion message
+                order.paymentProcessed = await paymentIO(order);                                                        // process the order payment - in a real system this is probably going to be have an async IO component ao we use await
 
-            onCompletion(order);
+                string msg = order.paymentProcessed ? "Payment Processed" : "Payment Failed";                           // determine the message detail on whether the payment was successful or not
+                writer.WriteLine($"Payment Processor#{id}: {timestamp}: Order #{order.id}. {msg}.");                    // build the completion message
+
+                onCompletion(order);
+            }
+            finally 
+            {
+                semaphore.Release();
+            }
         }
 
 

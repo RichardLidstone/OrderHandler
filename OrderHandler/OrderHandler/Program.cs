@@ -53,10 +53,12 @@ namespace OrderHandler
                 processor.start();
             }
 
-            var delivery = new DeliveryProcessor(deliveryQueue, Console.Out);
-
-            delivery.start();
-
+            for (int i = 0; i < numDeliveryProcessors; i++)
+            {
+                var delivery = new DeliveryProcessor(deliveryQueue, Console.Out);
+                delivery.start();
+            }
+            
             paymentQueue.Completion.Wait();
         }
 
