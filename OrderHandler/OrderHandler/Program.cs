@@ -11,7 +11,6 @@ namespace OrderHandler
 
         static void Main(string[] args)
         {
-
             int numPaymentProcessors = promptForInteger("payment processes");
             int numDeliveryProcessors = promptForInteger("delivery processes");
 
@@ -20,21 +19,28 @@ namespace OrderHandler
             BufferBlock<Order> deliveryQueue = new BufferBlock<Order>();
 
 
-            Action<Order> afterPayment = order =>
+            Func<PaymentProcessor,Action<Order>> afterPayment = paymentProcessor =>
             {
-                if (order.paymentProcessed)
+                return order =>
                 {
-                    deliveryQueue.Post(order);
-                }
-                else
-                {
-                    order.shouldFail = false;
-                    Task.Run(async () =>
+                    if (order.paymentProcessed)
                     {
-                        await Task.Delay(5000);
-                        paymentQueue.Post(order);
-                    });
-                }
+                        deliveryQueue.Post(order);
+                    }
+                    else
+                    {
+                        order.shouldFail = false;
+                        Task.Run(async () =>
+                        {
+                            await Task.Delay(5000);
+                            /*
+                            paymentQueue.Post(order);
+                            /*/
+                            await paymentProcessor.processAsync(order);
+                            //*/
+                        });
+                    }
+                };
             };
 
 

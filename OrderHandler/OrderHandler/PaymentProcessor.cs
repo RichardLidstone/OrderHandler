@@ -15,12 +15,12 @@ namespace OrderHandler
         private readonly Action<Order> onCompletion;
 
 
-        public PaymentProcessor(IReceivableSourceBlock<Order> source, TextWriter writer, Action<Order> onCompletion = null, int delay = 2000)
+        public PaymentProcessor(IReceivableSourceBlock<Order> source, TextWriter writer, Func<PaymentProcessor, Action<Order>> completionFactory = null, int delay = 2000)
         {
             this.writer = writer;
             this.delay = delay;
             this.source = source;
-            this.onCompletion = onCompletion ?? (o => { });
+            this.onCompletion = completionFactory(this) ?? (o => { });
         }
 
 
@@ -38,8 +38,6 @@ namespace OrderHandler
                 while (source.TryReceive(out order))
                 {
                     await processAsync(order);
-
-                    onCompletion(order);
                 }
             }
         }
@@ -57,6 +55,8 @@ namespace OrderHandler
 
             string msg = order.paymentProcessed ? "Payment Processed" : "Payment Failed";                           // determine the message detail on whether the payment was successful or not
             writer.WriteLine($"Payment Processor#{id}: {timestamp}: Order #{order.id}. {msg}.");                    // build the completion message
+
+            onCompletion(order);
         }
 
 
