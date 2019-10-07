@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace OrderHandler
 {
@@ -14,7 +15,7 @@ namespace OrderHandler
             this.writer = writer;
         }
 
-        public async void handleOrder(Order order)
+        public async Task handleOrder(Order order)
         {
             if (order.delivered)                                                                                    // if the order has already been delivered ...
                 throw new ApplicationException("Order already delivered");                                              // throw an exception - this should never happen

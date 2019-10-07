@@ -9,14 +9,10 @@ namespace OrderHandlerTests
 {
 
     [TestClass]
-    public class PaymentProcessorTests
+    public class PaymentProcessorTests : TestBase
     {
 
-        [TestInitialize]
-        public void testInit()
-        {
-            Common.nextId = new ConcurrentDictionary<Type, int>();
-        }
+
 
 
         /*

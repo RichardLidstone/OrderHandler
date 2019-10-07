@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OrderHandler
 {
-    internal class PaymentProcessor
+    public class PaymentProcessor
     {
     }
 }

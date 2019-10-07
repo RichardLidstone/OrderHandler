@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace OrderHandlerTests
 {
@@ -13,13 +14,13 @@ namespace OrderHandlerTests
     {
 
         [TestMethod]
-        public void DeliveryProcessorOutput()
+        public async Task DeliveryProcessorOutput()
         {
             StringWriter writer = new StringWriter();
             Order order = new Order();
 
             DeliveryProcessor deliveryProcessor = new DeliveryProcessor(writer);
-            deliveryProcessor.handleOrder(order);
+            await deliveryProcessor.handleOrder(order);
 
             Regex pattern = new Regex(@"Delivery Processor#\d+: \d{2}:\d{2}\.\d{2} [ap]m: Order #\d+\. Ready for Delivery\.");
             Assert.IsTrue(pattern.IsMatch(writer.ToString()), "got: " + writer.ToString());
@@ -27,28 +28,28 @@ namespace OrderHandlerTests
 
 
         [TestMethod]
-        public void DeliveryProcessorDoesDelivery()
+        public async Task DeliveryProcessorDoesDelivery()
         {
             Order order = new Order();
 
             DeliveryProcessor deliveryProcessor = new DeliveryProcessor(new StringWriter());
-            deliveryProcessor.handleOrder(order);
+            await deliveryProcessor.handleOrder(order);
 
             Assert.IsTrue(order.delivered);
         }
 
 
         [TestMethod]
-        public void CantReprocessOrders()
+        public async Task CantReprocessOrders()
         {
             Order order = new Order();
 
             DeliveryProcessor deliveryProcessor = new DeliveryProcessor(new StringWriter());
-            deliveryProcessor.handleOrder(order);
+            await deliveryProcessor.handleOrder(order);
 
             deliveryProcessor = new DeliveryProcessor(new StringWriter());
 
-            Assert.ThrowsException<ApplicationException>(() => deliveryProcessor.handleOrder(order));
+            await Assert.ThrowsExceptionAsync<ApplicationException>(async () =>  await deliveryProcessor.handleOrder(order));
         }
     }
 }
