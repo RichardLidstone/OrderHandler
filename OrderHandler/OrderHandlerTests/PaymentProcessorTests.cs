@@ -11,7 +11,16 @@ namespace OrderHandlerTests
     [TestClass]
     public class PaymentProcessorTests : TestBase
     {
+        [TestMethod]
+        public void processPayment()
+        {
+            Order order = new Order();
 
+            PaymentProcessor payment = new PaymentProcessor(new StringWriter());
+            payment.process(order);
+
+            Assert.IsTrue(order.paymentProcessed);
+        }
 
 
 
