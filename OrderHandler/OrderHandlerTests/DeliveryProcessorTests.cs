@@ -19,7 +19,7 @@ namespace OrderHandlerTests
             StringWriter writer = new StringWriter();
             Order order = new Order();
 
-            DeliveryProcessor deliveryProcessor = new DeliveryProcessor(writer);
+            DeliveryProcessor deliveryProcessor = new DeliveryProcessor(null, writer);
             await deliveryProcessor.handleOrder(order);
 
             Regex pattern = new Regex(@"Delivery Processor#\d+: \d{2}:\d{2}\.\d{2} [ap]m: Order #\d+\. Ready for Delivery\.");
@@ -32,7 +32,7 @@ namespace OrderHandlerTests
         {
             Order order = new Order();
 
-            DeliveryProcessor deliveryProcessor = new DeliveryProcessor(new StringWriter());
+            DeliveryProcessor deliveryProcessor = new DeliveryProcessor(null, new StringWriter());
             await deliveryProcessor.handleOrder(order);
 
             Assert.IsTrue(order.delivered);
@@ -44,10 +44,10 @@ namespace OrderHandlerTests
         {
             Order order = new Order();
 
-            DeliveryProcessor deliveryProcessor = new DeliveryProcessor(new StringWriter());
+            DeliveryProcessor deliveryProcessor = new DeliveryProcessor(null, new StringWriter());
             await deliveryProcessor.handleOrder(order);
 
-            deliveryProcessor = new DeliveryProcessor(new StringWriter());
+            deliveryProcessor = new DeliveryProcessor(null, new StringWriter());
 
             await Assert.ThrowsExceptionAsync<ApplicationException>(async () =>  await deliveryProcessor.handleOrder(order));
         }

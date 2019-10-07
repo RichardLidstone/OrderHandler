@@ -11,7 +11,7 @@ namespace OrderHandler
         {
             paymentProcessed = false;
             delivered = false;
-            shouldFail = (id % 5 != 0);
+            shouldFail = (id % 5 == 0);
         }
 
         public bool paymentProcessed { get; internal set; }

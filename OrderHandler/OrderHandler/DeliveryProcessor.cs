@@ -3,17 +3,39 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace OrderHandler
 {
     public class DeliveryProcessor : Common
     {
         private TextWriter writer;
+        private BufferBlock<Order> source;
 
-        public DeliveryProcessor(TextWriter writer)
+        public DeliveryProcessor(BufferBlock<Order> source, TextWriter writer)
         {
             this.writer = writer;
+            this.source = source;
         }
+
+
+        public void start()
+        {
+            consumeAsync();
+        }
+
+        protected async Task consumeAsync()
+        {
+            while (await source.OutputAvailableAsync())
+            {
+                Order order;
+                while (source.TryReceive(out order))
+                {
+                    await handleOrder(order);
+                }
+            }
+        }
+
 
         public async Task handleOrder(Order order)
         {

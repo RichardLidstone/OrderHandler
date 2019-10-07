@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace OrderHandler
 {
@@ -10,16 +11,42 @@ namespace OrderHandler
     {
         private TextWriter writer;
         private int delay;
+        private readonly IReceivableSourceBlock<Order> source;
+        private readonly Action<Order> onCompletion;
 
 
-        public PaymentProcessor(TextWriter writer, int delay = 2000)
+        public PaymentProcessor(IReceivableSourceBlock<Order> source, TextWriter writer, Action<Order> onCompletion = null, int delay = 2000)
         {
             this.writer = writer;
             this.delay = delay;
+            this.source = source;
+            this.onCompletion = onCompletion ?? (o => { });
         }
 
 
-        public async Task process(Order order)
+        public void start()
+        {
+            consumeAsync();
+        }
+
+
+        protected async Task consumeAsync()
+        {
+            while (await source.OutputAvailableAsync())
+            {
+                Order order;
+                while (source.TryReceive(out order))
+                {
+                    await processAsync(order);
+
+                    onCompletion(order);
+                }
+            }
+        }
+
+
+
+        public async Task processAsync(Order order)
         {
             if (order.paymentProcessed)                                                                             // if the order payment has already been processed ...
                 throw new ApplicationException("Order payment already processed");                                      // throw an exception - this should never happen
@@ -36,7 +63,7 @@ namespace OrderHandler
         private async Task<bool> paymentIO(Order order)
         {
             await Task.Delay(delay);
-            return order.shouldFail;
+            return !order.shouldFail;
         }
     }
 }

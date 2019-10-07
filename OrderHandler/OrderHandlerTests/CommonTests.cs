@@ -22,10 +22,10 @@ namespace OrderHandlerTests
             var order = new Order();
             Assert.AreEqual(1, order.id, "first Order");
 
-            var dp = new DeliveryProcessor(null);
+            var dp = new DeliveryProcessor(null, null);
             Assert.AreEqual(1, dp.id, "first DeliveryProcessor");
 
-            var pp = new PaymentProcessor(null);
+            var pp = new PaymentProcessor(null, null);
             Assert.AreEqual(1, pp.id, "first PaymentProcessor");
 
             order = new Order();

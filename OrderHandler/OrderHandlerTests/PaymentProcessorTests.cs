@@ -17,8 +17,8 @@ namespace OrderHandlerTests
         {
             Order order = new Order();
 
-            PaymentProcessor payment = new PaymentProcessor(new StringWriter(), 10);
-            await payment.process(order);
+            PaymentProcessor payment = new PaymentProcessor(null, new StringWriter(), delay: 10);
+            await payment.processAsync(order);
 
             Assert.IsTrue(order.paymentProcessed);
         }
@@ -29,12 +29,12 @@ namespace OrderHandlerTests
         {
             Order order = new Order();
 
-            PaymentProcessor payment = new PaymentProcessor(new StringWriter(), 10);
-            await payment.process(order);
+            PaymentProcessor payment = new PaymentProcessor(null, new StringWriter(), delay: 10);
+            await payment.processAsync(order);
 
-            payment = new PaymentProcessor(new StringWriter());
+            payment = new PaymentProcessor(null, new StringWriter(), delay: 10);
 
-            await Assert.ThrowsExceptionAsync<ApplicationException>(async () => await payment.process(order));
+            await Assert.ThrowsExceptionAsync<ApplicationException>(async () => await payment.processAsync(order));
         }
 
 
@@ -44,8 +44,8 @@ namespace OrderHandlerTests
             StringWriter writer = new StringWriter();
             Order order = new Order();
 
-            PaymentProcessor payment = new PaymentProcessor(writer, 10);
-            await payment.process(order);
+            PaymentProcessor payment = new PaymentProcessor(null, writer, delay: 10);
+            await payment.processAsync(order);
 
             Regex pattern = new Regex(@"Payment Processor#\d+: \d{2}:\d{2}\.\d{2} [ap]m: Order #\d+\. Processing Payment\.\r\nPayment Processor#\d+: \d{2}:\d{2}\.\d{2} [ap]m: Order #\d+\. Payment Processed\.");
 
