@@ -25,6 +25,9 @@ namespace OrderHandlerTests
         }
 
 
+        /// <summary>
+        /// Ensures Ids can't be set from outside the class
+        /// </summary>
         [TestMethod]
         public void ObjectsIdsAreImmutable()
         {

@@ -22,7 +22,7 @@ namespace OrderHandler
             //*/
         }
 
-        public int id { get; private set; }
+        public readonly int id;
 
         public string timestamp => DateTime.Now.ToString("HH:mm.ss tt").ToLower();
     }
