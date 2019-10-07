@@ -11,6 +11,7 @@ namespace OrderHandler
         private TextWriter writer;
         private int delay;
 
+
         public PaymentProcessor(TextWriter writer, int delay = 2000)
         {
             this.writer = writer;
@@ -35,7 +36,7 @@ namespace OrderHandler
         private async Task<bool> paymentIO(Order order)
         {
             await Task.Delay(delay);
-            return order.id % 5 != 0;
+            return order.shouldFail;
         }
     }
 }
