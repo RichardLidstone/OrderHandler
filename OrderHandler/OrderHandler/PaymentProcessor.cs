@@ -23,7 +23,7 @@ namespace OrderHandler
             this.writer = writer;
             this.delay = delay;
             this.source = source;
-            this.onCompletion = completionFactory(this) ?? (o => { });
+            this.onCompletion = completionFactory != null ? completionFactory(this) : (o => { });
         }
 
 
